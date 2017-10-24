@@ -1,0 +1,10 @@
+< ../config.mk
+
+results/sample_indexes.txt:
+	set -x
+	bin/target
+	mkdir -p `dirname $target`
+	wget -q -O - $BASE_URL/ \
+	| cut -d'/' -f6 > $target.build \
+	&& mv $target.build $target
+
