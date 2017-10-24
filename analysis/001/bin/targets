@@ -1,0 +1,2 @@
+#!/bin/bash
+cut -d '/' -f6 ../data/index.html | sed "s#^#results/#" | sed "s#\$#.block#" | grep GSE 

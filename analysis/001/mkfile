@@ -1,0 +1,10 @@
+< ../config.mk
+
+results/%.block: data/index.html
+	set -x
+	bin/targets
+	mkdir -p `dirname $target`
+	echo "Haciendo $target"
+	echo "Procesando a partir de $prereq"
+	wget -q -O - $BASE_URL /
+	##| grep -v

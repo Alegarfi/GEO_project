@@ -1,0 +1,9 @@
+#!/bin/bash
+
+BASE_URL="ftp://ftp.ncbi.nlm.nih.gov/geo/series/"
+set -x
+mkdir -p "$(dirname $target)"
+echo "Haciendo $target"
+echo "Procesando a partir de $prereq"
+wget -q $BASE_URL > results/
+
