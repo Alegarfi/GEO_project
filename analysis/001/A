@@ -2,8 +2,9 @@
 
 BASE_URL="ftp://ftp.ncbi.nlm.nih.gov/geo/series/"
 set -x
-mkdir -p "$(dirname $target)"
+##mkdir -p "$(dirname $target)"
+bash bin/target
+mkdir -p `dirname ./bin/target`
 echo "Haciendo $target"
-echo "Procesando a partir de $prereq"
-wget -q $BASE_URL > results/
+cut -d '/' -f6 index.html| sed "s#^#results/#" | sed "s#\$#.block#> results/
 
