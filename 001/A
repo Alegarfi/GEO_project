@@ -1,0 +1,7 @@
+#!/bin/bash
+
+set -x
+wget ftp://ftp.ncbi.nlm.nih.gov/geo/series/ | xargs mv index.html data
+bin/targets
+mkdir -p `dirname bin/target`
+
