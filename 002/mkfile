@@ -1,0 +1,8 @@
+< ../config.mk
+
+results/%/metadata.txt.gz:
+	set -x
+	echo "[DEBUGGING] downloading $target"
+	mkdir -p `dirname $target`
+	wget -q -O - $BASE_URL_2/$stem/*_matrix.txt.gz > $target.build \
+	&& mv target.build $target

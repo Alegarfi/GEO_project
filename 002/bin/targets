@@ -1,0 +1,8 @@
+#!/bin/bash
+
+source ../config.mk
+
+find -L data/ -type f -name "*.html" \
+| xargs cat | sed -e "s#$BASE_URL_2/#results/#" -e "s#\$#matrix/metadata.txt.gz#"
+
+
