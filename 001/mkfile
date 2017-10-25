@@ -1,8 +1,10 @@
 < ../config.mk
 
 all:V:
+	set -x
+	 bin/targets | xargs mk
 
-results/%/index.html: data/index.html
+results/%/index.html:
 	echo "[DEBUGGING] Descargando indice para $stem"
 	set -x
 	mkdir -p `dirname $target`

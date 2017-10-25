@@ -2,4 +2,4 @@
 
 source ../config.mk
 
-cut -d '/' -f6 ../data/index.html | sed -e "s#^#results/#" -e "s#\$#/index.html#"| grep GSE
+cut -d '/' -f6 data/index.html | sed -e "s#^#results/#" -e "s#\$#/index.html#"| grep GSE
