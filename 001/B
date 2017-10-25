@@ -1,0 +1,4 @@
+#!/bin/bash
+
+bin/targets
+mkdir -p `dirname $targets`

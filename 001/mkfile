@@ -1,10 +1,12 @@
 < ../config.mk
 
-results/sample_indexes.txt:
-	set -x
-	bin/target
-	mkdir -p `dirname $target`
-	wget -q -O - $BASE_URL/ \
-	| cut -d'/' -f6 > $target.build \
-	&& mv $target.build $target
+all:V:
 
+results/%/index.html: data/index.html
+	echo "[DEBUGGING] Descargando indice para $stem"
+	set -x
+	mkdir -p `dirname $target`
+	wget -q -O - $BASE_URL/$stem/ \
+	| cut -d '"' -f2 \
+	| grep ftp > $target.build \
+	&& mv $target.build $target
