@@ -1,0 +1,14 @@
+< ../config.mk
+
+all:V:
+	set -x
+	bin/targets | xargs mk
+
+results/%/soft:
+	echo "[DEBBUGING
+	set -x
+	mkdir -p `dirname $targets`
+	wget -q -O - $BASE_URL_3/$stem/soft/*.soft.gz	
+
+
+	

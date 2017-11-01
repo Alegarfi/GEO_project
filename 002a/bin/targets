@@ -1,0 +1,5 @@
+#!/bin/bash
+
+source ../config.mk
+
+cut -d '/' -f7 data/GDS*/index.html | sed -e "s#^#results/#" -e "s#\$#/soft/metadata.soft.gz#"
