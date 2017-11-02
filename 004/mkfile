@@ -1,0 +1,13 @@
+< ../config.mk
+
+all:V:
+	set -x
+	bin/target | xargs mk
+
+results/%/metadata.soft.gz:
+	echo "[DEBUGGING] Descargando metadatos de $stem"
+	set -x
+	bin/target
+	mkdir -p `dirname $target`
+	wget -q -O - $BASE_URL_3/$stem/*_full.soft.gz > $target.build
+	mv $target.build $target

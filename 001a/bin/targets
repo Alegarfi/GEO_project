@@ -1,7 +1,0 @@
-#!/bin/bash
-
-source ../config.mk
-
-cut -d '>' -f2 data/index.html | cut -d '/' -f1 | grep GDS \
-| sed -e "s#^#results/#" -e "s#\$#/index.html#"
-

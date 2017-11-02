@@ -1,0 +1,8 @@
+#!/bin/bash
+
+source ../config.mk
+
+cut -d '/' -f6,7 data/GDS*/index.html \
+| sed -e "s#^#results/#" \
+-e "s#\$#/soft/metadata.soft.gz#" \
+| grep  GDS
