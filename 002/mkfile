@@ -1,5 +1,5 @@
 < ../config.mk
-all:V:
+all:VQ:
 	set -x
 	bin/targets | xargs mk
 
