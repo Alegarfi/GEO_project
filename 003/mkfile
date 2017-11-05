@@ -6,7 +6,7 @@ all:VQ:
 
 results/%/index.html:
 	echo "[DEBUGGING] Descargando indice para $stem"
-	set -x
+##	set -x
 	bin/targets
 	mkdir -p `dirname $target`
 	wget -q -O - $BASE_URL_3/$stem/ \
