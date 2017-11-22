@@ -1,0 +1,10 @@
+data/GSE100nnn/GSE100007/matrix/metadata.txt.gz
+data/GSE100nnn/GSE100011/matrix/metadata.txt.gz
+data/GSE100nnn/GSE100016/matrix/metadata.txt.gz
+data/GSE100nnn/GSE100018/matrix/metadata.txt.gz
+data/GSE100nnn/GSE100019/matrix/metadata.txt.gz
+data/GSE100nnn/GSE100020/matrix/metadata.txt.gz
+data/GSE100nnn/GSE100021/matrix/metadata.txt.gz
+data/GSE100nnn/GSE100023/matrix/metadata.txt.gz
+data/GSE100nnn/GSE100027/matrix/metadata.txt.gz
+data/GSE100nnn/GSE100038/matrix/metadata.txt.gz
