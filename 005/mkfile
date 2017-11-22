@@ -1,0 +1,14 @@
+< ../config.mk
+
+all:VQ:
+	set -x
+	bin/targets
+
+results/%.tsv:
+	set -x
+	
+
+results/SRAs_DSGEO/routes.txt:
+	mkdir -p `dirname $target`
+	grep -or SRA ../004/results/ > routes.txt
+
