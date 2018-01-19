@@ -124,19 +124,19 @@ rm(semifinal)
 rm(Terms)
 
 study_type<- table(final.geo$SERIES_TYPE)
-study_type<- as.data.frame(study_type)
+study_type<- data.frame(study_type, stringsAsFactors = T)
 names(study_type)[1] <-"series_type"
-otros <- sum(study_type == 1 )
-otrosdf<- data.frame(series_type = "Otros", Freq = otros)
-study_type <- study_type[study_type$Freq >= 2, ]
+otrosdf<- data.frame(series_type = "Otros", Freq = sum(study_type == 1))
+study_type <- data.frame(study_type[study_type$Freq >= 2, ])
 study_type <- rbind(study_type, otrosdf)
 study_type <- study_type[order(study_type$Freq, decreasing = T), ]
 labls <- study_type$series_type
+study_type<-study_type[order(study_type$Freq, decreasing = T), ]
 
 library(ggplot2)
 library(scales)
 library(plyr)
-##Gráfica de los estudios realizados en barras
+##Gráfica de los estudios realizados en barras  
 porcentaje<-percent(prop.table(study_type$Freq))
 Freq<- study_type$Freq
 
@@ -154,12 +154,15 @@ ggplot(st_graficable, aes(x = "", y = st_graficable$Freq,
   geom_text(aes(y = pos, label = porcentaje), size = 2)
 
 ##barplot sencillo 
-'Tipo de experimento'  <- study_type$series_type
-bp <- ggplot(study_type, aes(x="", y=Freq, fill= `Tipo de experimento`)) + 
+study_type<-study_type[order(study_type$Freq, decreasing = T), ]
+Tipo_de_experimento<-as.factor(study_type$series_type)
+Freq<- study_type$Freq
+bp <- ggplot(study_type, aes(x="Estudios", y=as.vector(Freq), fill= Tipo_de_experimento)) + 
   geom_bar(stat = "identity", width = 0.3) + scale_fill_brewer(palette = "Dark2") 
-bp
+bp + geom_text(aes(label = as.vector(porcentaje)), check_overlap = F)
 
-
+position <- Freq*0.5
+study_type <- ddply(study_type, .(Freq), transform, position = Freq*1)
 ##Gráficas en pastel
 pie <- bp + coord_polar("y", start=0)
 pie
