@@ -83,14 +83,88 @@ for (i in 1:nrow(Hs)) {
   f <- Hs[grep("Drug_abuse", Hs$RESUMEN_DEL_PROYECTO), ]
   g <- Hs[grep("Alcohol", Hs$RESUMEN_DEL_PROYECTO), ]
   h<- Hs[grep("Reward", Hs$RESUMEN_DEL_PROYECTO), ]
-  j<- Hs[grep("Substance_related_disorders", Hs$RESUMEN_DEL_PROYECTO), ]
-  k<- Hs[grep("Neuroscience", Hs$RESUMEN_DEL_PROYECTO), ]
-  l<- Hs[grep("Dopamine", Hs$RESUMEN_DEL_PROYECTO), ]
-  m<- Hs[grep("Glutamate", Hs$RESUMEN_DEL_PROYECTO), ]
-  n<- Hs[grep("Reward_mechanisms", Hs$RESUMEN_DEL_PROYECTO), ]
-  o<- Hs[grep("Alcohol_dependence", Hs$RESUMEN_DEL_PROYECTO), ]
+  i<- Hs[grep("Substance_related_disorders", Hs$RESUMEN_DEL_PROYECTO), ]
+  j<- Hs[grep("Neuroscience", Hs$RESUMEN_DEL_PROYECTO), ]
+  k<- Hs[grep("Dopamine", Hs$RESUMEN_DEL_PROYECTO), ]
+  l<- Hs[grep("Glutamate", Hs$RESUMEN_DEL_PROYECTO), ]
+  m<- Hs[grep("Reward_mechanisms", Hs$RESUMEN_DEL_PROYECTO), ]
+  n<- Hs[grep("Alcohol_dependence", Hs$RESUMEN_DEL_PROYECTO), ]
   
   dflist<- list(letters[1:15])
   final.geo<- do.call("rbind", dflist)
 }
+
+##### INTENTO 2 CON ggplot2
   
+bp<- ggplot(df, aes(x="", y=value, fill=group))+
+  geom_bar(width = 1, stat = "identity")
+bp
+
+a<-Hs[grep("addiction", Hs$RESUMEN_DEL_PROYECTO), ]
+b<-Hs[grep("Alcoholism", Hs$RESUMEN_DEL_PROYECTO), ]
+c<-Hs[grep("OCD", Hs$RESUMEN_DEL_PROYECTO), ]
+d<-Hs[grep("Brain", Hs$RESUMEN_DEL_PROYECTO), ]
+e<-Hs[grep("Coccaine", Hs$RESUMEN_DEL_PROYECTO), ]
+f<-Hs[grep("Drug_abuse", Hs$RESUMEN_DEL_PROYECTO), ]
+g<-Hs[grep("Alcohol", Hs$RESUMEN_DEL_PROYECTO), ]
+h<-Hs[grep("Reward", Hs$RESUMEN_DEL_PROYECTO), ]
+i<-Hs[grep("Substance_related_disorders", Hs$RESUMEN_DEL_PROYECTO), ]
+j<-Hs[grep("Neuroscience", Hs$RESUMEN_DEL_PROYECTO), ]
+k<-Hs[grep("Dopamine", Hs$RESUMEN_DEL_PROYECTO), ]
+l<-Hs[grep("Glutamate", Hs$RESUMEN_DEL_PROYECTO), ]
+m<-Hs[grep("Reward_mechanisms", Hs$RESUMEN_DEL_PROYECTO), ]
+n<-Hs[grep("Alcohol_dependence", Hs$RESUMEN_DEL_PROYECTO), ]
+
+Terms <- c("DDR2", "OPIOIDS")
+dflist<- list(a,b,c,d,e,f,g,h,i,j,k,l,m,n)
+semifinal <- do.call("rbind", dflist)
+final.geo<-semifinal[!grepl("cancer", semifinal$RESUMEN_DEL_PROYECTO), ]
+rm(a,b,c,d,e,f,g,h,i,j,k,l,m,n)
+rm(semifinal)
+rm(Terms)
+
+study_type<- table(final.geo$SERIES_TYPE)
+study_type<- as.data.frame(study_type)
+names(study_type)[1] <-"series_type"
+otros <- sum(study_type == 1 )
+otrosdf<- data.frame(series_type = "Otros", Freq = otros)
+study_type <- study_type[study_type$Freq >= 2, ]
+study_type <- rbind(study_type, otrosdf)
+study_type <- study_type[order(study_type$Freq, decreasing = T), ]
+labls <- study_type$series_type
+
+library(ggplot2)
+library(scales)
+library(plyr)
+##Gráfica de los estudios realizados en barras
+porcentaje<-percent(prop.table(study_type$Freq))
+Freq<- study_type$Freq
+
+porcentaje<-data.frame(porcentaje)
+st_graficable<-cbind(study_type, porcentaje)
+st_graficable = ddply(st_graficable, .(Freq), transform, position = cumsum(Freq) - 0.5*Freq)
+
+# Format the labels and calculate their positions
+st_graficable = ddply(st_graficable, .(series_type), transform, pos = (cumsum(Freq) - 0.5 * Freq))
+st_graficable$label = paste0(sprintf("%.0f", st_graficable$porcentaje), "%")
+
+ggplot(st_graficable, aes(x = "", y = st_graficable$Freq, 
+                          fill = st_graficable$series_type)) +
+  geom_bar(stat = "identity", width = 1) +
+  geom_text(aes(y = pos, label = porcentaje), size = 2)
+
+##barplot sencillo 
+'Tipo de experimento'  <- study_type$series_type
+bp <- ggplot(study_type, aes(x="", y=Freq, fill= `Tipo de experimento`)) + 
+  geom_bar(stat = "identity", width = 0.3) + scale_fill_brewer(palette = "Dark2") 
+bp
+
+
+##Gráficas en pastel
+pie <- bp + coord_polar("y", start=0)
+pie
+pie + scale_fill_brewer(palette="Dark2") + geom_text(aes(y = frecs), label = porcentaje)
+
+pie + scale_fill_brewer(palette="Dark2") +   geom_text(aes(y = Freq/7 + 
+c(0, cumsum(Freq)[-length(Freq)]), label = porcentaje), size=5)
+
