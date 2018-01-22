@@ -124,7 +124,7 @@ rm(semifinal)
 rm(Terms)
 
 study_type<- table(final.geo$SERIES_TYPE)
-study_type<- data.frame(study_type, stringsAsFactors = T)
+study_type<- data.frame(study_type, stringsAsFactors = F)
 names(study_type)[1] <-"series_type"
 otrosdf<- data.frame(series_type = "Otros", Freq = sum(study_type == 1))
 study_type <- data.frame(study_type[study_type$Freq >= 2, ])
@@ -136,6 +136,7 @@ study_type<-study_type[order(study_type$Freq, decreasing = T), ]
 library(ggplot2)
 library(scales)
 library(plyr)
+
 ##Gráfica de los estudios realizados en barras  
 porcentaje<-percent(prop.table(study_type$Freq))
 Freq<- study_type$Freq
