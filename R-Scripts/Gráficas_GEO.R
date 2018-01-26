@@ -1,6 +1,6 @@
 setwd("Documentos/gits/GEO_project/R-Scripts/")
 GEO<-read.csv(file="GEO_tablet.tsv", header = T, sep = "\t", na.strings = "", stringsAsFactors = F)
-Hs<- GEO[grep("Homo_sapiens", GEO$ORGANISMO, value = T), ]
+Hs<- GEO[grep("Homo_sapiens", GEO$ORGANISMO), ]
 
 
 #Búsqueda de términos para generar una abla final
@@ -21,10 +21,38 @@ n<-Hs[grep("Alcohol_dependence", Hs$RESUMEN_DEL_PROYECTO), ]
 dflist<- list(a,b,c,d,e,f,g,h,i,j,k,l,m,n)
 semifinal <- do.call("rbind", dflist)
 final.geo<-semifinal[!grepl("cancer", semifinal$RESUMEN_DEL_PROYECTO), ]
-rm(a,b,c,d,e,f,g,h,i,j,k,l,m,n, semifinal, dflist)
+
+rm(a,b,c,d,e,f,g,h,i,j,k,l,m,n, semifinal, dflist, GEO)
 
 #Procesamiento de dataframe final para las primeras gráficas con respecto al tipo de estudio
-study_type<- table(final.geo$SERIES_TYPE)
+
+var<- data.frame(final.geo$ORGANISMO, final.geo$SERIES_TYPE)
+table(var)
+
+FINAL.GEO <- GEO[0,]
+
+for(i in 1:nrow(Hs)){
+  
+  INTERMEDIATE.DATAFRAME <- GEO[0,]
+  
+  message(paste0("Operando sobre la linea ", i))
+  CELDA <- Hs$ORGANISMO[i]
+  ESPECIES <- unlist(strsplit(CELDA, split = ","))
+  #AQUI SE DEBE DE OPERAR SOBRE LA VARIABLE ESPECIES PARA ELIMINAR LOS 
+  #ELEMENTOS QUE COMIENZAN CON "!Sample.." Y DESPUES CONTAR EL NUMERO DE ESPECIES
+  ESPECIES <- ESPECIES[!grepl('!Sample', ESPECIES)] 
+  ESPECIES <- ESPECIES [!grepl('1:9', ESPECIES)]
+  NUMERO_DE_ESPECIES <- length(ESPECIES)
+  
+  for (x in 1:NUMERO_DE_ESPECIES) {
+    INTERMEDIATE.DATAFRAME[x,] <- GEO[i,] 
+    INTERMEDIATE.DATAFRAME[x,"ORGANISMO"] <- ESPECIES[x]
+  }
+  
+  FINAL.GEO <- rbind(FINAL.GEO, INTERMEDIATE.DATAFRAME)  
+}
+
+study_type<- table(Hs$SERIES_TYPE)
 study_type<- data.frame(study_type, stringsAsFactors = F)
 names(study_type)[1] <-"series_type"
 otrosdf<- data.frame(series_type = "Otros", Freq = sum(study_type == 1))
@@ -49,7 +77,7 @@ porcentaje <- percent(Freq/sum(Freq))
 
 bp <- ggplot(study_type, aes(x="", y=study_type$Freq, fill= study_type$series_type)) + 
   geom_bar(stat = "identity", width = 0.3) + scale_fill_brewer(palette = "Dark2") 
-  bp + geom_text( check_overlap = F)
+  bp + geom_text(aes(label=porcentaje, check_overlap = F))
   
   ##RECORDAR MODIFICAR EL CÓDIGO PARA MEJOR VISUALIZACIÓN
 
@@ -62,3 +90,78 @@ bp <- ggplot(study_type, aes(x="", y=study_type$Freq, fill= study_type$series_ty
                                                                c(0, cumsum(Freq)[-length(Freq)]), label = porcentaje), size=5)
   
   
+  #######Inicio de aluvial pot, ejemplos del paquete:
+  library(alluvial)
+  # Titanic data
+  tit <- as.data.frame(Titanic)
+  alluvial(tit)
+  
+  
+# Alluvial con datos de GEO
+  var<- data.frame(final.geo$ORGANISMO, final.geo$SERIES_TYPE, stringsAsFactors = F)
+  var <-as.data.frame(table(var), stringsAsFactors = F)
+    names(var)[1] <-"ORGANISMO"
+    names(var)[2] <-"SERIES_TYPE"  
+    names(var)[3] <-"FREQ"
+  var[0,]
+  var %>% group_by(var$ORGANISMO, var$SERIES_TYPE) %>%
+    summarise(n = sum(var$FREQ)) -> tit2d
+  
+alluvial(tit2d[,1:2], freq=tit2d$n)
+  ##ESTE ES EL PRIMER ALLUVIAL CON DOS VARIABLES CATEGÓRICAS, EL PASO SIGUIENTE ES LIMPIAR LA INFORMACIÓN
+  ##PARA QUE LAS FRECUENCIAS CORRESPONDAN A CADA UNA DE LAS VARIABLES OBSERVADAS EN LA TABLA Y QUE, 
+  ##POSTERIORMENTE, SEAN FÁCILMENTE INTERPRETADAS EN LA GRÁFICA.
+
+  #GENERACIÓN DE UN LOOP FOR PARA DIVIDIR LAS ESPECIES EN LA COLUMNA CORREPONDIENTE.
+FINAL.VAR <- var[0,]
+for(i in 1:nrow(var)){
+  INTERMEDIATE.DATAFRAME <- var[0,]
+  message(paste0("operando sobre la línea ", i))
+  CELDA <-var$ORGANISMO[i]
+  ESPECIES <-unlist(strsplit(CELDA, split = ","))
+  ESPECIES <- ESPECIES[!grepl('!Sample', ESPECIES)] 
+  ESPECIES <- ESPECIES [!grepl('1:9', ESPECIES)]
+  NUMERO_DE_ESPECIES <- length(ESPECIES)
+  
+  for (x in 1:NUMERO_DE_ESPECIES) {
+    INTERMEDIATE.DATAFRAME[x,] <- var[i,] 
+    INTERMEDIATE.DATAFRAME[x,"ORGANISMO"] <- ESPECIES[x]
+  }
+  
+  FINAL.VAR <- rbind(FINAL.VAR, INTERMEDIATE.DATAFRAME)
+  
+}
+rm(INTERMEDIATE.DATAFRAME)
+
+##PROCESAMIENTO DE LA TABLA "FINAL.VAR"
+View(table(FINAL.VAR))
+  
+FINAL.VAR<- as.data.frame(FINAL.VAR)
+VAR2<-data.frame(FINAL.VAR$ORGANISMO, FINAL.VAR$SERIES_TYPE)
+VAR2 <-as.data.frame(table(VAR2), stringsAsFactors = F)
+names(VAR2)[1] <-"ORGANISMO"
+names(VAR2)[2] <-"SERIES_TYPE"  
+names(VAR2)[3] <-"FREQ"
+
+
+##INTENTO 2 DE ALLUVIAL CON DATOS REALES DE GEO
+library("ggplot2")
+
+VAR2 %>% group_by(VAR2$ORGANISMO, VAR2$SERIES_TYPE) %>%
+  summarise(n = sum(VAR2$FREQ)) -> tit2d
+
+alluvial(tit2d[,1:2], freq=tit2d$n, col = "steelblue")
+
+
+#TERCER ALLUVIAL
+VAR2<-VAR2[order(VAR2$ORGANISMO),]
+View(VAR2)
+VAR3 <- VAR2[grep("Homo_sapiens", VAR2$ORGANISMO), ]
+View(VAR3)
+
+VAR3 %>% group_by(VAR3$ORGANISMO, VAR3$SERIES_TYPE) %>%
+  summarise(n = sum(VAR3$FREQ)) -> VAR3D
+
+alluvial(VAR3D[,1:2], freq=VAR3D$n, col = "steelblue")
+
+
