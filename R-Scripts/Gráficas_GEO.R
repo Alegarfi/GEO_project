@@ -92,6 +92,8 @@ bp <- ggplot(study_type, aes(x="", y=study_type$Freq, fill= study_type$series_ty
   
   #######Inicio de aluvial pot, ejemplos del paquete:
   library(alluvial)
+  library(plyr)
+  library(dplyr)
   # Titanic data
   tit <- as.data.frame(Titanic)
   alluvial(tit)
@@ -150,7 +152,7 @@ library("ggplot2")
 VAR2 %>% group_by(VAR2$ORGANISMO, VAR2$SERIES_TYPE) %>%
   summarise(n = sum(VAR2$FREQ)) -> tit2d
 
-alluvial(tit2d[,1:2], freq=tit2d$n, col = "steelblue")
+alluvial(tit2d[,1:2], freq=VAR2$FREQ, col = "steelblue")
 
 
 #TERCER ALLUVIAL
@@ -164,4 +166,19 @@ VAR3 %>% group_by(VAR3$ORGANISMO, VAR3$SERIES_TYPE) %>%
 
 alluvial(VAR3D[,1:2], freq=VAR3D$n, col = "steelblue")
 
+###Arreglado de los datos para el alluvial
+var<- data.frame(final.geo$ORGANISMO, final.geo$SERIES_TYPE)
+vst <- data.frame(table(var$final.geo.SERIES_TYPE))
+vst2<-vst[vst$Freq>=2,]
+human<- data.frame(rep("Homo_sapiens", times=15))
+VAR4<-bind_cols(human, vst)
+names(VAR4)[1] <-"ORGANISMO"
+names(VAR4)[2] <-"SERIES_TYPE"  
+names(VAR4)[3] <-"FREQ"
+VAR4<-data.frame(VAR4[order(VAR4$FREQ, decreasing = T), ], stringsAsFactors = F)
+View(VAR4)
 
+VAR4 %>% group_by(VAR4$ORGANISMO, VAR4$SERIES_TYPE) %>%
+  summarise(n = sum(VAR4$FREQ)) -> VAR4D
+
+alluvial(VAR4D[,1:2], freq=VAR4$FREQ, col = "steelblue", border = "white")
