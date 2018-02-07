@@ -1,3 +1,4 @@
+
 setwd("Documentos/gits/GEO_project/R-Scripts/")
 GEO<-read.csv(file="GEO_tablet.tsv", header = T, sep = "\t", na.strings = "", stringsAsFactors = F)
 Hs<- GEO[grep("Homo_sapiens", GEO$ORGANISMO), ]
@@ -153,6 +154,7 @@ VAR2 %>% group_by(VAR2$ORGANISMO, VAR2$SERIES_TYPE) %>%
   summarise(n = sum(VAR2$FREQ)) -> tit2d
 
 alluvial(tit2d[,1:2], freq=VAR2$FREQ, col = "steelblue")
+write.csv(final.geo, file = "greps", "~/Documentos/gits/GEO_project/R-Scripts/", sep = "\t")
 
 
 #TERCER ALLUVIAL
