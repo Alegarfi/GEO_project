@@ -1,0 +1,42 @@
+< ../config.mk
+
+all:VQ:
+#	set -x
+	bin/targets | xargs mk
+
+results/GEO_tablet.tsv: data/routes.txt
+	mkdir -p `dirname $target`
+	echo "FILE_PATH	GEO_ID	NOMBRE_DEL_PROYECTO	RESUMEN_DEL_PROYECTO	PMID	FECHA_DE_PUBLICACION	ORGANISMO	BIOPROJECT_ID	SRA_ID	SERIES_TYPE	SAMPLE_TYPE	SAMPLE_DESCRIPTION" > $target.build
+	while read prueba
+	do
+		echo "generando columna para $prueba"
+		FILE_PATH="$prueba"
+		GEO_ID="$(zgrep '!Series_geo_accession' $prueba | cut -d '"' -f2 | sed -e 's# #_#g' | sort -u | tr '\n' ','| sed -e 's#,$##')"
+		NOMBRE_DEL_PROYECTO="$(zgrep '!Series_title' $prueba | cut -d '"' -f2 | sed -e 's# #_#g' | sort -u | tr '\n' ',' | sed -e 's#,$##')"
+		RESUMEN_DEL_PROYECTO="$(zgrep '!Series_summary' $prueba | cut -d '"' -f2 | sed -e 's# #_#g' | sort -u | tr '\n' ',' | sed -e 's#,$##')"
+		PMID="$(zgrep '!Series_pubmed_id' $prueba | cut -d '"' -f2 | sort -u | tr '\n' ',' | sed -e 's#,$##')"
+		FECHA_DE_PUBLICACION="$(zgrep '!Series_status' $prueba | cut -d '"' -f2 | sed -e 's# #_#g'| sort -u | tr '\n' ',' | sed -e 's#,$##')"
+		ORGANISMO="$(zgrep '!Sample_organism' $prueba | tr '\t' '\n' | tail -n+2 | sort -u | tr '\n' ',' | sed -e 's#,$#\n#' -e 's# #_#g'| tr -d '"' | sed -e 's#,$##')"
+		BIOPROJECT_ID="$(zgrep '!Series_relation' $prueba | grep 'BioProject' | cut -d '/' -f5 | cut -d'"' -f1 | sort -u | tr '\n' ',' | sed -e 's#,$##')"
+		SRA_ID="$(zgrep '=SRP' $prueba | cut -d '"' -f2 | cut -d"=" -f2 | tr '\n' ',' | sed -e 's#,$##')"
+		SERIES_TYPE="$(zgrep '!Series_type' $prueba | cut -d '"' -f2 | sort -u | sed -e 's# #_#g' | tr '\n' ',' | sed -e 's#,$##')"
+		SAMPLE_TYPE="$(zgrep '!Sample_type' $prueba | tr '\t' '\n' | tail -n+2 | grep '"' | sort -u | tr '\n' ',' | sed -e 's#,$#\n#' | tr -d '"'| sort -u | sed -e 's#,$##')"
+		SAMPLE_DESCRIPTION="$(zgrep '!Sample_description' $prueba | cut -f2 | sed -e 's# #_#g' | tr -d '"' | sort -u | tr '\n' ',' | sed -e 's#,$##')"
+		echo "$FILE_PATH	$GEO_ID	$NOMBRE_DEL_PROYECTO	$RESUMEN_DEL_PROYECTO	$PMID	$FECHA_DE_PUBLICACION	$ORGANISMO	$BIOPROJECT_ID	$SRA_ID	$SERIES_TYPE	$SAMPLE_TYPE	$SAMPLE_DESCRIPTION" >> $target.build
+		echo "
+		[DEBUGGING] FILE_PATH es $FILE_PATH
+		[DEBUGGING] GEO_ID es $GEO_ID
+		[DEBUGGING] NOMBRE_DEL_PROYECTO es $NOMBRE_DEL_PROYECTO
+		[DEBUGGING] RESUMEN_DEÑ PROYECTO es $RESUMEN_DEL_PROYECTO
+		[DEBUGGING] PMID es $PMID
+		[DEBUGGING] FECHA_DE_PUBLICACION es $FECHA_DE_PUBLICACION
+		[DEBUGGING] ORGANISMO es $ORGANISMO
+		[DEBUGGING] BIOPROJECT_ID es $BIOPROJECT_ID
+		[DEBUGGING] SRA_ID es $SRA_ID
+		[DEBUGGING] SERIES_TYPE es $SERIES_TYPE
+		[DEBUGGING] SAMPLE_TYPE es $SAMPLE_TYPE
+		[DEBUGGING] SAMPLE_DESCRIPTION es $SAMPLE_DESCRIPTION
+		"
+	done < $prereq \
+	&& mv $target.build $target
+	

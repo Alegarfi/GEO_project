@@ -1,0 +1,18 @@
+# Opciones generales de HTCondor.
+universe = vanilla
+#
+initialdir = /castle/agar/GEO_project/005
+should_transfer_files = NO
+getenv = True
+#
+# Recursos necesarios para ejecutar el trabajo.
+request_cpus = 1
+request_memory = 3GB
+request_disk = 1GB
+
+executable = /usr/bin/time
+arguments = /usr/lib/plan9/bin/mk results/GEO_summary_table.tsv
+output = results/GEO_summary_table.tsv.condor_out
+log = results/GEO_summary_table.tsv.condor_log
+error = results/GEO_summary_table.tsv.condor_err
+queue

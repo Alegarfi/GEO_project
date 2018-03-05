@@ -5,7 +5,9 @@ colocar son:
 	-'TERMINO_DE_BUSQUEDA'
 	-'BIOPROJECT_ID'
 	-'SRA_ID'
-	-'ID_DE_PUBLICACION'
-	-'GEO_ID'
+	-'PUBMED_ID_DE_PUBLICACION'
+	-'NOMBRE_DE_PUBLICACION'
+	-'ORGANISMO'
+	-'FECHA_DE_PUBLICACION'
 Se omiten las tildes por motivos de sintaxis.
 

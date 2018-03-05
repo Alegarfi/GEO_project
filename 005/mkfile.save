@@ -13,8 +13,8 @@ results/GEO_summary_table.tsv: results/routes.txt
 	do
 		echo "generando resumen para $ruta"
 	###### BLOQUE DE ASIGANACION DE VARIABLES
-		GEO_ID="$(zgrep '!Series_geo_accession' $ruta | cut -d '"' -f2 | sed -e 's# #_#g' | sort -u)"
-		NOMBRE_DEL_PROYECTO="$(zgrep '!Series_title' $ruta | cut -d '"' -f2 | sed -e 's# #_#g' | sort -u)"
+		GEO_ID="$(zgrep '!Series_geo_accession' $ruta | cut -d '"' -f2 | sed -e 's# #_#g')"
+		NOMBRE_DEL_PROYECTO="$(zgrep '!Series_title' $ruta | cut -d '"' -f2 | sed -e 's# #_#g')"
 		RESUMEN_DEL_PROYECTO="$(zgrep '!Series_summary' $ruta | cut -d '"' -f2 | sed -e 's# #_#g')"
 		PUBMED_ID_DE_PUBLICACION="$(zgrep '!Series_pubmed_id' $ruta | cut -d '"' -f2 | sed -e 's# #_#g')"
 		FECHA_DE_PUBLICACION="$(zgrep '!Series_status' $ruta | cut -d '"' -f2 | sed -e 's# #_#g')"

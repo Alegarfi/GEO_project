@@ -1,5 +1,3 @@
 #!/bin/bash
 
-cat data/search_terms.txt \
-| sed -e "s#^#results/#" \
--e "s#\$#.tsv#"
+echo "results/GEO_summary_table.tsv"
