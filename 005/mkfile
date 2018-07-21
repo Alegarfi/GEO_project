@@ -1,40 +1,42 @@
 < ../config.mk
 
 all:VQ:
-	set -x
+#	set -x
 	bin/targets | xargs mk
 
-results/GEO_summary_table.tsv: results/routes.txt
-	set -x
-	echo "GEO_ID	NOMBRE_DEL_PROYECTO	RESUMEN_DEL_PROYECTO	\
-	PUBMED_ID_DE_PUBLICACION	FECHA_DE_PUBLICACION	ORGANISMO	\
-	BIOPROJECT_ID	SRA_ID	SERIES_TYPE	SAMPLE_TYPE	SAMPLE_DESCRIPTION" > $target.build
-	while read ruta
+results/GEO_tablet.tsv: data/routes.txt
+	mkdir -p `dirname $target`
+	echo "FILE_PATH	GEO_ID	NOMBRE_DEL_PROYECTO	RESUMEN_DEL_PROYECTO	PMID	FECHA_DE_PUBLICACION	ORGANISMO	BIOPROJECT_ID	SRA_ID	SERIES_TYPE	SAMPLE_TYPE	SAMPLE_DESCRIPTION" > $target.build
+	while read metadata
 	do
-		echo "generando resumen para $ruta"
-	###### BLOQUE DE ASIGANACION DE VARIABLES
-		GEO_ID="$(zgrep '!Series_geo_accession' $ruta | cut -d '"' -f2 | sed -e 's# #_#g' | sort -u)"
-		NOMBRE_DEL_PROYECTO="$(zgrep '!Series_title' $ruta | cut -d '"' -f2 | sed -e 's# #_#g' | sort -u)"
-		RESUMEN_DEL_PROYECTO="$(zgrep '!Series_summary' $ruta | cut -d '"' -f2 | sed -e 's# #_#g')"
-		PUBMED_ID_DE_PUBLICACION="$(zgrep '!Series_pubmed_id' $ruta | cut -d '"' -f2 | sed -e 's# #_#g')"
-		FECHA_DE_PUBLICACION="$(zgrep '!Series_status' $ruta | cut -d '"' -f2 | sed -e 's# #_#g')"
-		ORGANISMO="$(zgrep '!Sample_organism' $ruta | tr '\t' '\n' | tail -n+2 | sort -u | tr '\n' ',' | sed -e 's#,$#\n#' -e 's# #_#g'| tr -d '"')"
-		BIOPROJECT_ID="$(zgrep '!Series_relation' $ruta | grep 'BioProject' | cut -d '/' -f5 | cut -d'"' -f1)"
-		SRA_ID="$(zgrep '=SRP' $ruta | cut -d '"' -f2 | cut -d"=" -f2 )"
-		SERIES_TYPE="$(zgrep '!Series_type' $ruta | cut -d '"' -f2 | sort -u | sed -e 's# #_#g' | tr '\n' ',' | sed -e 's#,$#\n#')"
-		SAMPLE_TYPE="$(zgrep '!Sample_type' $ruta | tr '\t' '\n' | tail -n+2 | grep '"' | sort -u | tr '\n' ',' | sed -e 's#,$#\n#' -e 's# #_#g' | tr -d '"')"
-		SAMPLE_DESCRIPTION="$(zgrep '!Sample_description' $ruta | cut -f2 | tr '\t' ',' | tr -d '"' | sort -u | tr '\n' ',' | sed -e 's#,$#\n#' |less -S)"
-	##### IMPRESION DE LA VARIABLE EN LA TABLA FINAL
-	echo "$GEO_ID	$NOMBRE_DEL_PROYECTO	$RESUMEN_DEL_PROYECTO	$PUBMED_ID_DE_PUBLICACION	\
-	$FECHA_DE_PUBLICACION	$ORGANISMO	$BIOPROJECT_ID	$SRA_ID	$SERIES_TYPE	$SAMPLE_TYPE	$SAMPLE_DESCRIPTION" >> $target.build
+		echo "generando columna para $metadata"
+		FILE_PATH="$metadata"
+		GEO_ID="$(zgrep '!Series_geo_accession' $metadata | cut -d '"' -f2 | sed -e 's# #_#g' | sort -u | tr '\n' ','| sed -e 's#,$##')"
+		NOMBRE_DEL_PROYECTO="$(zgrep '!Series_title' $metadata | cut -d '"' -f2 | sed -e 's# #_#g' | sort -u | tr '\n' ',' | sed -e 's#,$##')"
+		RESUMEN_DEL_PROYECTO="$(zgrep '!Series_summary' $metadata | cut -d '"' -f2 | sed -e 's# #_#g' | sort -u | tr '\n' ',' | sed -e 's#,$##')"
+		PMID="$(zgrep '!Series_pubmed_id' $metadata | cut -d '"' -f2 | sort -u | tr '\n' ',' | sed -e 's#,$##')"
+		FECHA_DE_PUBLICACION="$(zgrep '!Series_status' $metadata | cut -d '"' -f2 | sed -e 's# #_#g'| sort -u | tr '\n' ',' | sed -e 's#,$##')"
+		ORGANISMO="$(zgrep '!Sample_organism' $metadata | tr '\t' '\n' | tail -n+2 | sort -u | tr '\n' ',' | sed -e 's#,$#\n#' -e 's# #_#g'| tr -d '"' | sed -e 's#,$##')"
+		BIOPROJECT_ID="$(zgrep '!Series_relation' $metadata | grep 'BioProject' | cut -d '/' -f5 | cut -d'"' -f1 | sort -u | tr '\n' ',' | sed -e 's#,$##')"
+		SRA_ID="$(zgrep '=SRP' $metadata | cut -d '"' -f2 | cut -d"=" -f2 | tr '\n' ',' | sed -e 's#,$##')"
+		SERIES_TYPE="$(zgrep '!Series_type' $metadata | cut -d '"' -f2 | sort -u | sed -e 's# #_#g' | tr '\n' ',' | sed -e 's#,$##')"
+		SAMPLE_TYPE="$(zgrep '!Sample_type' $metadata | tr '\t' '\n' | tail -n+2 | grep '"' | sort -u | tr '\n' ',' | sed -e 's#,$#\n#' | tr -d '"'| sort -u | sed -e 's#,$##')"
+		SAMPLE_DESCRIPTION="$(zgrep '!Sample_description' $metadata | cut -f2 | sed -e 's# #_#g' | tr -d '"' | sort -u | tr '\n' ',' | sed -e 's#,$##')"
+		echo "$FILE_PATH	$GEO_ID	$NOMBRE_DEL_PROYECTO	$RESUMEN_DEL_PROYECTO	$PMID	$FECHA_DE_PUBLICACION	$ORGANISMO	$BIOPROJECT_ID	$SRA_ID	$SERIES_TYPE	$SAMPLE_TYPE	$SAMPLE_DESCRIPTION" >> $target.build
+		echo "
+		[DEBUGGING] FILE_PATH es $FILE_PATH
+		[DEBUGGING] GEO_ID es $GEO_ID
+		[DEBUGGING] NOMBRE_DEL_PROYECTO es $NOMBRE_DEL_PROYECTO
+		[DEBUGGING] RESUMEN_DEL_PROYECTO es $RESUMEN_DEL_PROYECTO
+		[DEBUGGING] PMID es $PMID
+		[DEBUGGING] FECHA_DE_PUBLICACION es $FECHA_DE_PUBLICACION
+		[DEBUGGING] ORGANISMO es $ORGANISMO
+		[DEBUGGING] BIOPROJECT_ID es $BIOPROJECT_ID
+		[DEBUGGING] SRA_ID es $SRA_ID
+		[DEBUGGING] SERIES_TYPE es $SERIES_TYPE
+		[DEBUGGING] SAMPLE_TYPE es $SAMPLE_TYPE
+		[DEBUGGING] SAMPLE_DESCRIPTION es $SAMPLE_DESCRIPTION
+		"
 	done < $prereq \
 	&& mv $target.build $target
-
-results/routes.txt: data/
-	set -x
-	mkdir -p `dirname $target`
-	find -L $prereq \
-		-type f \
-		-name "metadata.txt.gz" \
-	> $target.build \
-	&& mv $target.build $target
+	

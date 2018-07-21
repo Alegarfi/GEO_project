@@ -3,7 +3,7 @@ all:VQ:
 	set -x
 	bin/targets | xargs mk
 
-results/%/metadata.txt.gz:
+results/%/metadata.txt.gz:E:
 	set -x
 	echo "[DEBUGGING] downloading $target"
 	mkdir -p `dirname $target`

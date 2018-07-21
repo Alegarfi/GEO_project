@@ -1,0 +1,32 @@
+# Opciones generales de HTCondor.
+universe = vanilla
+#
+initialdir = /home/agar/GEO_project/002
+should_transfer_files = NO
+getenv = True
+#
+# Recursos necesarios para ejecutar el trabajo.
+request_cpus = 1
+request_memory = 3GB
+request_disk = 1GB
+
+executable = /usr/bin/time
+arguments = /usr/lib/plan9/bin/mk results/GSE2nnn/GSE2583/matrix/metadata.txt.gz
+output = results/GSE2nnn/GSE2583/matrix/metadata.txt.gz.condor_out
+log = results/GSE2nnn/GSE2583/matrix/metadata.txt.gz.condor_log
+error = results/GSE2nnn/GSE2583/matrix/metadata.txt.gz.condor_err
+queue
+
+executable = /usr/bin/time
+arguments = /usr/lib/plan9/bin/mk results/GSE12nnn/GSE12837/matrix/metadata.txt.gz
+output = results/GSE12nnn/GSE12837/matrix/metadata.txt.gz.condor_out
+log = results/GSE12nnn/GSE12837/matrix/metadata.txt.gz.condor_log
+error = results/GSE12nnn/GSE12837/matrix/metadata.txt.gz.condor_err
+queue
+
+executable = /usr/bin/time
+arguments = /usr/lib/plan9/bin/mk results/GSE97nnn/GSE97946/matrix/metadata.txt.gz
+output = results/GSE97nnn/GSE97946/matrix/metadata.txt.gz.condor_out
+log = results/GSE97nnn/GSE97946/matrix/metadata.txt.gz.condor_log
+error = results/GSE97nnn/GSE97946/matrix/metadata.txt.gz.condor_err
+queue

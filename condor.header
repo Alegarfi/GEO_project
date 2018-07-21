@@ -1,7 +1,7 @@
 # Opciones generales de HTCondor.
 universe = vanilla
 #
-initialdir = /home/agar/GEO_project/005
+initialdir = /home/agar/GEO_project
 should_transfer_files = NO
 getenv = True
 #

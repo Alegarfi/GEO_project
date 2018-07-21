@@ -1,0 +1,40 @@
+< ../config.mk
+
+all:VQ:
+	set -x
+	bin/targets | xargs mk
+
+results/GEO_summary_table.tsv: results/routes.txt
+	set -x
+	echo "GEO_ID	NOMBRE_DEL_PROYECTO	RESUMEN_DEL_PROYECTO	\
+	PUBMED_ID_DE_PUBLICACION	FECHA_DE_PUBLICACION	ORGANISMO	\
+	BIOPROJECT_ID	SRA_ID	SERIES_TYPE	SAMPLE_TYPE	SAMPLE_DESCRIPTION" > $target.build
+	while read ruta
+	do
+		echo "generando resumen para $ruta"
+	###### BLOQUE DE ASIGANACION DE VARIABLES
+		GEO_ID="$(zgrep '!Series_geo_accession' $ruta | cut -d '"' -f2 | sed -e 's# #_#g' | sort -u)"
+		NOMBRE_DEL_PROYECTO="$(zgrep '!Series_title' $ruta | cut -d '"' -f2 | sed -e 's# #_#g' | sort -u)"
+		RESUMEN_DEL_PROYECTO="$(zgrep '!Series_summary' $ruta | cut -d '"' -f2 | sed -e 's# #_#g')"
+		PUBMED_ID_DE_PUBLICACION="$(zgrep '!Series_pubmed_id' $ruta | cut -d '"' -f2 | sed -e 's# #_#g')"
+		FECHA_DE_PUBLICACION="$(zgrep '!Series_status' $ruta | cut -d '"' -f2 | sed -e 's# #_#g')"
+		ORGANISMO="$(zgrep '!Sample_organism' $ruta | tr '\t' '\n' | tail -n+2 | sort -u | tr '\n' ',' | sed -e 's#,$#\n#' -e 's# #_#g'| tr -d '"')"
+		BIOPROJECT_ID="$(zgrep '!Series_relation' $ruta | grep 'BioProject' | cut -d '/' -f5 | cut -d'"' -f1)"
+		SRA_ID="$(zgrep '=SRP' $ruta | cut -d '"' -f2 | cut -d"=" -f2 )"
+		SERIES_TYPE="$(zgrep '!Series_type' $ruta | cut -d '"' -f2 | sort -u | sed -e 's# #_#g' | tr '\n' ',' | sed -e 's#,$#\n#')"
+		SAMPLE_TYPE="$(zgrep '!Sample_type' $ruta | tr '\t' '\n' | tail -n+2 | grep '"' | sort -u | tr '\n' ',' | sed -e 's#,$#\n#' -e 's# #_#g' | tr -d '"')"
+		SAMPLE_DESCRIPTION="$(zgrep '!Sample_description' $ruta | cut -f2 | tr '\t' ',' | tr -d '"' | sort -u | tr '\n' ',' | sed -e 's#,$#\n#' |less -S)"
+	##### IMPRESION DE LA VARIABLE EN LA TABLA FINAL
+	echo "$GEO_ID	$NOMBRE_DEL_PROYECTO	$RESUMEN_DEL_PROYECTO	$PUBMED_ID_DE_PUBLICACION	\
+	$FECHA_DE_PUBLICACION	$ORGANISMO	$BIOPROJECT_ID	$SRA_ID	$SERIES_TYPE	$SAMPLE_TYPE	$SAMPLE_DESCRIPTION" >> $target.build
+	done < $prereq \
+	&& mv $target.build $target
+
+results/routes.txt: data/
+	set -x
+	mkdir -p `dirname $target`
+	find -L $prereq \
+		-type f \
+		-name "metadata.txt.gz" \
+	> $target.build \
+	&& mv $target.build $target
